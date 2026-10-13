@@ -49,8 +49,8 @@
             this.btnEffacer = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnBack = new System.Windows.Forms.Button();
-            this.btnImporterLogo = new System.Windows.Forms.Button();
             this.pbxLogo = new System.Windows.Forms.PictureBox();
+            this.btnImporterLogo = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numCurrencyRate)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -61,7 +61,7 @@
             // 
             this.txtPointOfSale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPointOfSale.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPointOfSale.Location = new System.Drawing.Point(248, 86);
+            this.txtPointOfSale.Location = new System.Drawing.Point(247, 86);
             this.txtPointOfSale.Multiline = true;
             this.txtPointOfSale.Name = "txtPointOfSale";
             this.txtPointOfSale.Size = new System.Drawing.Size(521, 39);
@@ -71,7 +71,7 @@
             // 
             this.txtEstablishment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEstablishment.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtEstablishment.Location = new System.Drawing.Point(248, 132);
+            this.txtEstablishment.Location = new System.Drawing.Point(247, 132);
             this.txtEstablishment.Multiline = true;
             this.txtEstablishment.Name = "txtEstablishment";
             this.txtEstablishment.Size = new System.Drawing.Size(521, 40);
@@ -81,7 +81,7 @@
             // 
             this.txtCommercialMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtCommercialMessage.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCommercialMessage.Location = new System.Drawing.Point(248, 263);
+            this.txtCommercialMessage.Location = new System.Drawing.Point(247, 263);
             this.txtCommercialMessage.Multiline = true;
             this.txtCommercialMessage.Name = "txtCommercialMessage";
             this.txtCommercialMessage.Size = new System.Drawing.Size(521, 54);
@@ -91,7 +91,7 @@
             // 
             this.txtFooter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFooter.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFooter.Location = new System.Drawing.Point(248, 341);
+            this.txtFooter.Location = new System.Drawing.Point(247, 341);
             this.txtFooter.Multiline = true;
             this.txtFooter.Name = "txtFooter";
             this.txtFooter.Size = new System.Drawing.Size(521, 53);
@@ -102,7 +102,7 @@
             this.cboCurrency.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cboCurrency.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboCurrency.FormattingEnabled = true;
-            this.cboCurrency.Location = new System.Drawing.Point(248, 183);
+            this.cboCurrency.Location = new System.Drawing.Point(247, 183);
             this.cboCurrency.Name = "cboCurrency";
             this.cboCurrency.Size = new System.Drawing.Size(521, 31);
             this.cboCurrency.TabIndex = 4;
@@ -111,7 +111,7 @@
             // 
             this.numCurrencyRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.numCurrencyRate.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numCurrencyRate.Location = new System.Drawing.Point(248, 225);
+            this.numCurrencyRate.Location = new System.Drawing.Point(247, 225);
             this.numCurrencyRate.Name = "numCurrencyRate";
             this.numCurrencyRate.Size = new System.Drawing.Size(521, 32);
             this.numCurrencyRate.TabIndex = 5;
@@ -122,7 +122,7 @@
             this.btnSave.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSave.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(248, 417);
+            this.btnSave.Location = new System.Drawing.Point(247, 417);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(521, 46);
             this.btnSave.TabIndex = 6;
@@ -200,7 +200,7 @@
             // 
             this.txtclientSellerName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtclientSellerName.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtclientSellerName.Location = new System.Drawing.Point(248, 43);
+            this.txtclientSellerName.Location = new System.Drawing.Point(247, 43);
             this.txtclientSellerName.Multiline = true;
             this.txtclientSellerName.Name = "txtclientSellerName";
             this.txtclientSellerName.Size = new System.Drawing.Size(521, 36);
@@ -211,7 +211,7 @@
             // 
             this.txtNccEntreprise.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNccEntreprise.Font = new System.Drawing.Font("Mongolian Baiti", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtNccEntreprise.Location = new System.Drawing.Point(248, 3);
+            this.txtNccEntreprise.Location = new System.Drawing.Point(247, 3);
             this.txtNccEntreprise.Multiline = true;
             this.txtNccEntreprise.Name = "txtNccEntreprise";
             this.txtNccEntreprise.Size = new System.Drawing.Size(521, 34);
@@ -287,9 +287,9 @@
             this.btnEffacer.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEffacer.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEffacer.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnEffacer.Location = new System.Drawing.Point(775, 418);
+            this.btnEffacer.Location = new System.Drawing.Point(774, 418);
             this.btnEffacer.Name = "btnEffacer";
-            this.btnEffacer.Size = new System.Drawing.Size(127, 44);
+            this.btnEffacer.Size = new System.Drawing.Size(128, 44);
             this.btnEffacer.TabIndex = 19;
             this.btnEffacer.Text = "Effacer";
             this.btnEffacer.UseVisualStyleBackColor = false;
@@ -325,6 +325,15 @@
             this.btnBack.UseVisualStyleBackColor = false;
             this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
+            // pbxLogo
+            // 
+            this.pbxLogo.Location = new System.Drawing.Point(933, 150);
+            this.pbxLogo.Name = "pbxLogo";
+            this.pbxLogo.Size = new System.Drawing.Size(223, 156);
+            this.pbxLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbxLogo.TabIndex = 21;
+            this.pbxLogo.TabStop = false;
+            // 
             // btnImporterLogo
             // 
             this.btnImporterLogo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -339,15 +348,6 @@
             this.btnImporterLogo.Text = "Importer Logo ...";
             this.btnImporterLogo.UseVisualStyleBackColor = false;
             this.btnImporterLogo.Click += new System.EventHandler(this.btnImporterLogo_Click);
-            // 
-            // pbxLogo
-            // 
-            this.pbxLogo.Location = new System.Drawing.Point(933, 150);
-            this.pbxLogo.Name = "pbxLogo";
-            this.pbxLogo.Size = new System.Drawing.Size(223, 156);
-            this.pbxLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pbxLogo.TabIndex = 21;
-            this.pbxLogo.TabStop = false;
             // 
             // CompanyInfoControl
             // 

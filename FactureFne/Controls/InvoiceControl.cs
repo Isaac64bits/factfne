@@ -13,6 +13,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.IO;
 using DrawingFont = System.Drawing.Font;
+using System.Text.RegularExpressions;
 
 
 
@@ -303,66 +304,106 @@ namespace FactureFne.Controls
 
         private bool ValidateInvoice(string template, ClientInfo client, CompanyInfo company)
         {
-            switch (template)
+            if (client == null)
+            {
+                MessageBox.Show("Le client est introuvable.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            string normalizedTemplate = template?.Trim().ToUpperInvariant() ?? string.Empty;
+
+            // Le NCC est obligatoire et doit être valide pour B2B et B2G.
+            if (normalizedTemplate == "B2B" || normalizedTemplate == "B2G")
+            {
+                if (string.IsNullOrWhiteSpace(client.Cc))
+                {
+                    MessageBox.Show($"Template {normalizedTemplate} : le numéro de compte contribuable est obligatoire.",
+                        "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                if (!Regex.IsMatch(client.Cc, @"\A\d{7}[A-Z]\z", RegexOptions.CultureInvariant))
+                {
+                    MessageBox.Show(
+                        "Le numéro de compte contribuable doit contenir exactement 8 caractères : " +
+                        "7 chiffres suivis d'une lettre majuscule, sans espace (ex. : 1234567A).",
+                        "Numéro de compte contribuable invalide",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return false;
+                }
+            }
+
+            switch (normalizedTemplate)
             {
                 case "B2B":
-                    if (string.IsNullOrWhiteSpace(client.Cc))
+                    if (string.IsNullOrWhiteSpace(client.Email))
                     {
-                        MessageBox.Show("Template B2B : NCC du client requis.", "Validation",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Template B2B : l’adresse électronique du client est obligatoire.",
+                            "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return false;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(client.Tel))
+                    {
+                        MessageBox.Show("Template B2B : le numéro de téléphone du client est obligatoire.",
+                            "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return false;
                     }
                     break;
 
                 case "B2C":
-                case "B2F":
                 case "B2G":
+                case "B2F":
                     if (string.IsNullOrWhiteSpace(client.Libelle))
                     {
-                        MessageBox.Show($"Template {template} : Nom du client requis.", "Validation",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
-                    if (string.IsNullOrWhiteSpace(client.Tel))
-                    {
-                        MessageBox.Show($"Template {template} : Téléphone du client requis.", "Validation",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
-                    if (string.IsNullOrWhiteSpace(client.Email))
-                    {
-                        MessageBox.Show($"Template {template} : Email du client requis.", "Validation",
+                        MessageBox.Show($"Template {normalizedTemplate} : nom du client requis.", "Validation",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return false;
                     }
 
-                    //  Cas spécifique : B2F (international)
-                    if (template == "B2F")
+                    if (string.IsNullOrWhiteSpace(client.Tel))
                     {
-                        if (string.IsNullOrWhiteSpace(company.ForeignCurrency))
+                        MessageBox.Show($"Template {normalizedTemplate} : numéro de téléphone du client obligatoire.",
+                            "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return false;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(client.Email))
+                    {
+                        MessageBox.Show($"Template {normalizedTemplate} : adresse électronique du client obligatoire.",
+                            "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return false;
+                    }
+
+                    if (normalizedTemplate == "B2F")
+                    {
+                        if (company == null || string.IsNullOrWhiteSpace(company.ForeignCurrency))
                         {
-                            MessageBox.Show("Template B2F : La monnaie étrangère est obligatoire.", "Validation",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("Template B2F : la devise du pays de destination est obligatoire.",
+                                "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return false;
                         }
+
                         if (company.ForeignCurrencyRate <= 0)
                         {
-                            MessageBox.Show("Template B2F : Le taux de change doit être renseigné.", "Validation",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("Template B2F : le taux de change du pays de destination doit être supérieur à zéro.",
+                                "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return false;
                         }
                     }
                     break;
             }
 
+            if (!ValidatePhoneFormat(normalizedTemplate, client.Tel))
+                return false;
+
             if (chkIsRne.Checked && string.IsNullOrWhiteSpace(txtRne.Text))
             {
-                MessageBox.Show("Le Numero de reçu doit être renseigné si vous cochez la case.",
+                MessageBox.Show("Le numéro de reçu est obligatoire si la case est cochée.",
                     "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                // On force le focus dans le champ
                 txtRne.Focus();
-
                 return false;
             }
 
@@ -788,7 +829,58 @@ namespace FactureFne.Controls
             }
         }
 
+        private bool ValidatePhoneFormat(string template, string phone)
+        {
+            string value = phone?.Trim() ?? string.Empty;
+            string normalizedTemplate = template?.Trim().ToUpperInvariant() ?? string.Empty;
 
+            bool isValid;
 
+            switch (normalizedTemplate)
+            {
+                case "B2B":
+                case "B2C":
+                case "B2G":
+                    // 10 chiffres, sans espace ni préfixe international
+                    isValid = Regex.IsMatch(
+                        value,
+                        @"\A(?:01|05|07|21|27)\d{8}\z",
+                        RegexOptions.CultureInvariant);
+
+                    if (!isValid)
+                    {
+                        MessageBox.Show(
+                            "Pour les factures B2B, B2C et B2G, le téléphone  doit contenir exactement 10 chiffres, " +
+                            "sans espace ni préfixe +225/00225, et commencer par 01, 05, 07, 21 ou 27.",
+                            "Téléphone du client invalide",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+
+                    return isValid;
+
+                case "B2F":
+                    // Préfixe international obligatoire ; tous les caractères après le préfixe doivent être des chiffres.
+                    isValid = Regex.IsMatch(
+                        value,
+                        @"\A(?:\+\d+|00\d+)\z",
+                        RegexOptions.CultureInvariant);
+
+                    if (!isValid)
+                    {
+                        MessageBox.Show(
+                            "Pour une facture B2F, le téléphone doit commencer par + ou 00, " +
+                            "puis contenir uniquement des chiffres, sans espace.",
+                            "Téléphone invalide",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+
+                    return isValid;
+
+                default:
+                    return true;
+            }
+        }
     }
 }

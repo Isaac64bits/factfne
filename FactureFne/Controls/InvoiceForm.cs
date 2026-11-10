@@ -37,6 +37,10 @@ namespace FactureFne.Controls
         private bool _isEditMode = false;
         private int _invoiceId = 0;
 
+        private readonly ApiResponseRepository _apiResponseRepo;
+        private bool _isLoadingCreditSource;
+        private int? _loadedCreditSourceId;
+
         public InvoiceForm(AppState state, int? invoiceId = null)
         {
             InitializeComponent();
@@ -83,6 +87,12 @@ namespace FactureFne.Controls
             //  Ici on génère le numéro de facture automatique
             txt_NumFact.Text = GetNextInvoiceNumber();
 
+            _apiResponseRepo = new ApiResponseRepository();
+
+            txtRefFne.Leave += CreditReference_Leave;
+            txt_RefFact.Leave += CreditReference_Leave;
+            txtRefFne.KeyDown += CreditReference_KeyDown;
+            txt_RefFact.KeyDown += CreditReference_KeyDown;
         }
 
         //private void cbx_TypeFact_SelectedIndexChanged(object sender, EventArgs e)
@@ -1360,5 +1370,227 @@ namespace FactureFne.Controls
             return taxes;
         }
 
+        private void InvoiceForm_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void CreditReference_Leave(object sender, EventArgs e)
+        {
+            TryLoadCreditSource(sender as TextBox, false);
+        }
+
+        private void CreditReference_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            e.SuppressKeyPress = true;
+            TryLoadCreditSource(sender as TextBox, true);
+        }
+
+        private void TryLoadCreditSource(TextBox referenceControl, bool showNotFound)
+        {
+            if (referenceControl == null
+                || _isLoadingCreditSource
+                || _isEditMode
+                || _editingInvoiceId.HasValue
+                || !string.Equals(cbx_TypeFact.Text?.Trim(), "AVOIR", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            string reference = referenceControl.Text.Trim();
+            if (string.IsNullOrWhiteSpace(reference))
+                return;
+
+            ApiResponse apiResponse = _apiResponseRepo.GetByApiReference(reference);
+            InvoiceInfo sourceInvoice = null;
+
+            // Une référence FNE certifiée permet de retrouver directement l'ID local.
+            if (apiResponse != null)
+                sourceInvoice = _invoiceRepo.GetById(apiResponse.InvoiceId);
+
+            // Sinon, recherche par numéro ou référence de facture.
+            if (sourceInvoice == null)
+            {
+                List<InvoiceInfo> matches = _invoiceRepo.FindSalesByReference(reference);
+
+                if (matches.Count > 1)
+                {
+                    MessageBox.Show(
+                        "Plusieurs factures correspondent à cette référence. Utilisez une référence FNE ou un numéro de facture unique.",
+                        "Référence ambiguë",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                sourceInvoice = matches.FirstOrDefault();
+            }
+
+            if (sourceInvoice == null)
+            {
+                if (showNotFound)
+                {
+                    MessageBox.Show(
+                        "Aucune facture de vente ne correspond à cette référence.",
+                        "Facture introuvable",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                return;
+            }
+
+            string sourceType = sourceInvoice.TypeFacture?.Trim().ToUpperInvariant();
+            if (sourceType != "VENTE" && sourceType != "6" && sourceType != "SALE")
+            {
+                MessageBox.Show(
+                    "La référence correspond à une facture qui n'est pas une vente. Un avoir ne peut pas être créé à partir de cette facture.",
+                    "Type de facture non valide",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Évite de recharger les lignes si l'autre champ contient une référence du même document.
+            if (_loadedCreditSourceId == sourceInvoice.Id)
+                return;
+
+            List<InvoiceItem> items = _invoiceRepo.GetItems(sourceInvoice.Id).ToList();
+            List<CustomTaxDraft> globalTaxes = _invoiceRepo.GetGlobalCustomTaxes(sourceInvoice.Id);
+            ClientInfo client = _clientRepo.GetByCode(sourceInvoice.CompteClient);
+
+            if (apiResponse == null)
+                apiResponse = _apiResponseRepo.GetByInvoiceId(sourceInvoice.Id);
+
+            string fneReference = apiResponse?.ApiReference;
+            if (string.IsNullOrWhiteSpace(fneReference))
+                fneReference = sourceInvoice.ReferenceFacture;
+
+            _isLoadingCreditSource = true;
+            _searchTimer.Stop();
+
+            try
+            {
+                // Ne pas remplacer le numéro AV… ni le type AVOIR du nouveau document.
+                txt_RefFact.Text = sourceInvoice.ReferenceFacture ?? "";
+                txtRefFne.Text = fneReference ?? "";
+                txtCompteCli.Text = sourceInvoice.CompteClient ?? "";
+
+                SetClientForCreditNote(client, sourceInvoice.CompteClient);
+
+                dgv_Article.Rows.Clear();
+                indexArticleEnEdition = -1;
+                _isEditingFromGrid = false;
+                btn_AjoutArticle.Text = "Ajouter";
+
+                foreach (InvoiceItem item in items.OrderByDescending(i => i.Id))
+                {
+                    decimal totalHtLigne =
+                        item.Quantite * item.PrixUnitaire * (1m - item.Remise / 100m);
+
+                    int rowIndex = dgv_Article.Rows.Add(
+                        item.CodeArticle ?? "",
+                        item.Libelle ?? "",
+                        item.Quantite,
+                        item.Unite ?? "",
+                        item.PrixUnitaire,
+                        item.Remise,
+                        totalHtLigne);
+
+                    CustomTaxDraft extraTax = item.CustomTaxes?.FirstOrDefault();
+
+                    dgv_Article.Rows[rowIndex].Tag = new ArticleTaxInfo
+                    {
+                        PrincipalTaxCode = item.TypeTaxe ?? "",
+                        ExtraTaxName = extraTax?.Name ?? "",
+                        ExtraTaxRate = extraTax?.Amount ?? 0m
+                    };
+                }
+
+                NomTaxe_TTC.Clear();
+                TauxTaxe_TTC.Clear();
+
+                bool hasGlobalTax = globalTaxes != null && globalTaxes.Count > 0;
+                label_AjtNomTaxeTTC.Visible = hasGlobalTax;
+                NomTaxe_TTC.Visible = hasGlobalTax;
+                label_AjtTauxTTC.Visible = hasGlobalTax;
+                TauxTaxe_TTC.Visible = hasGlobalTax;
+
+                if (hasGlobalTax)
+                {
+                    NomTaxe_TTC.Text = globalTaxes[0].Name ?? "";
+                    TauxTaxe_TTC.Text = globalTaxes[0].Amount.ToString("N2");
+                }
+
+                _isUpdatingRemise = true;
+                txt_SommeTauxRemise.Text = sourceInvoice.Remisetht.ToString("N2");
+                txt_MontantRemiseTHT.Clear();
+                _isUpdatingRemise = false;
+
+                UpdateTotals();
+
+                _isUpdatingRemise = true;
+                txt_MontantRemiseTHT.Text = _currentTotalRemise.ToString("N2");
+                _isUpdatingRemise = false;
+
+                _loadedCreditSourceId = sourceInvoice.Id;
+
+                if (client == null)
+                {
+                    MessageBox.Show(
+                        "Les lignes de la facture ont été chargées, mais le client associé n'a pas été retrouvé. Sélectionnez le client avant d'enregistrer l'avoir.",
+                        "Client introuvable",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+
+                if (string.IsNullOrWhiteSpace(txtRefFne.Text))
+                {
+                    MessageBox.Show(
+                        "La facture source est chargée, mais aucune référence FNE n'a été retrouvée. Vérifiez cette référence avant de certifier l'avoir.",
+                        "Référence FNE manquante",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            finally
+            {
+                _isLoadingCreditSource = false;
+            }
+        }
+
+        private void SetClientForCreditNote(ClientInfo client, string account)
+        {
+            comboClients.SelectedIndexChanged -= ComboClients_SelectedIndexChanged;
+            _isSelectingClient = true;
+
+            try
+            {
+                comboClients.DataSource = null;
+                comboClients.DisplayMember = "Libelle";
+                comboClients.ValueMember = "Id";
+
+                if (client != null)
+                {
+                    comboClients.DataSource = new List<ClientInfo> { client };
+                    comboClients.SelectedIndex = 0;
+                    txtEmail.Text = client.Email ?? "";
+                    txtCompteCli.Text = client.Compte ?? "";
+                }
+                else
+                {
+                    comboClients.Text = "";
+                    txtEmail.Clear();
+                    txtCompteCli.Text = account ?? "";
+                }
+            }
+            finally
+            {
+                _isSelectingClient = false;
+                comboClients.SelectedIndexChanged += ComboClients_SelectedIndexChanged;
+            }
+        }
     }
 }

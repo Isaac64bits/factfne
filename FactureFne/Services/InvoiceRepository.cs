@@ -29,12 +29,12 @@ namespace FactureFne.Services
             return 0m; // fallback si rien ne marche
         }
 
-       private string Clean(string s) => s?.Trim();
+        private string Clean(string s) => s?.Trim();
 
 
         private string GetTaxeFromTaux(decimal taux)
         {
-                
+
             switch (taux)
             {
                 case 18.0m: return "TVA";
@@ -266,7 +266,7 @@ namespace FactureFne.Services
 
                         decimal totalHt = 0, totalTva = 0, remiseTotale = 0;
                         decimal taxeGlobale = 0;
-                        
+
                         int invoiceId = connection.ExecuteScalar<int>(
                             @"INSERT INTO Invoices 
                             (TypeFacture, NumeroFacture, DateFacture, CompteClient, ReferenceFacture, ParentReference, ImportDate, MontantHtTotal, MontantTvaTotal,Remisetht,IsCertified)
@@ -832,11 +832,34 @@ namespace FactureFne.Services
             return result;
         }
 
+        public List<InvoiceInfo> FindSalesByReference(string reference)
+        {
+            if (string.IsNullOrWhiteSpace(reference))
+                return new List<InvoiceInfo>();
 
+            using (var connection = new SQLiteConnection($"Data Source={_dbPath};Version=3;"))
+            {
+                connection.Open();
 
+                const string sql = @"
+                    SELECT *
+                    FROM Invoices
+                    WHERE UPPER(TRIM(COALESCE(TypeFacture, ''))) IN ('VENTE', '6', 'SALE')
+                      AND (
+                            TRIM(COALESCE(NumeroFacture, '')) = @Reference COLLATE NOCASE
+                         OR TRIM(COALESCE(ReferenceFacture, '')) = @Reference COLLATE NOCASE
+                      )
+                    ORDER BY
+                        CASE
+                            WHEN TRIM(COALESCE(NumeroFacture, '')) = @Reference COLLATE NOCASE THEN 0
+                            ELSE 1
+                        END,
+                        Id DESC;";
+
+                return connection.Query<InvoiceInfo>(
+                    sql,
+                    new { Reference = reference.Trim() }).ToList();
+            }
+        }
     }
-
 }
-
-
-   

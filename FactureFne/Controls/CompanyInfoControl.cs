@@ -59,6 +59,7 @@ namespace FactureFne.Controls
             txtNccEntreprise.Text = _state.Company.NccEntreprise;
             txtclientSellerName.Text = _state.Company.ClientSellerName;
             //txtCodcliAirsi.Text = _state.Company.CodcliAirsi;
+            txtRegimeFiscal.Text = _state.Company.RegimeFiscal ?? "";
 
             if (cboCurrency.Items.Count == 0)
             {
@@ -72,30 +73,27 @@ namespace FactureFne.Controls
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtNccEntreprise.Text))
+            {
+                MessageBox.Show("Le NCC Entreprise est obligatoire.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             _state.Company.PointOfSale = txtPointOfSale.Text.Trim();
             _state.Company.Establishment = txtEstablishment.Text.Trim();
             _state.Company.CommercialMessage = txtCommercialMessage.Text.Trim();
             _state.Company.Footer = txtFooter.Text.Trim();
-
             _state.Company.NccEntreprise = txtNccEntreprise.Text.Trim();
             _state.Company.ClientSellerName = txtclientSellerName.Text.Trim();
-            //_state.Company.CodcliAirsi = txtCodcliAirsi.Text.Trim();
-
             _state.Company.ForeignCurrency = (cboCurrency.SelectedItem as string) ?? "";
             _state.Company.ForeignCurrencyRate = numCurrencyRate.Value;
+            _state.Company.RegimeFiscal = txtRegimeFiscal.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(txtNccEntreprise.Text))
-            {
-                MessageBox.Show("Le NCC Entreprise est obligatoire.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            else
-            {
-                StateStore.Save(_state);
-            MessageBox.Show("Informations de l'entreprise enregistrées avec succès ", "Entreprise", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            StateStore.Save(_state);
 
-            }
-
+            MessageBox.Show("Informations de l'entreprise enregistrées avec succès.",
+                "Entreprise", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnEffacer_Click(object sender, EventArgs e)
@@ -122,6 +120,7 @@ namespace FactureFne.Controls
                 txtFooter.Clear();
                 txtNccEntreprise.Clear();
                 txtclientSellerName.Clear();
+                txtRegimeFiscal.Clear();
                 //txtCodcliAirsi.Clear();
 
                 // Réinitialiser ComboBox et NumericUpDown
@@ -140,6 +139,7 @@ namespace FactureFne.Controls
                 _state.Company.CodcliAirsi = "";
                 _state.Company.ForeignCurrency = "";
                 _state.Company.ForeignCurrencyRate = 0;
+                _state.Company.RegimeFiscal = "";
 
                 StateStore.Save(_state);
 
@@ -185,5 +185,9 @@ namespace FactureFne.Controls
             }
         }
 
+        private void cboCurrency_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

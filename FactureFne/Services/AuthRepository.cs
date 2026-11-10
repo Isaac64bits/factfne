@@ -103,14 +103,21 @@ namespace FactureFne.Services
             using (var connection = new SQLiteConnection($"Data Source={_dbPath};Version=3;"))
             {
                 connection.Open();
-
                 string sql = "SELECT PasswordHash FROM Users WHERE Username = @Username LIMIT 1;";
                 string storedHash = connection.ExecuteScalar<string>(sql, new { Username = username.Trim() });
 
                 if (string.IsNullOrEmpty(storedHash))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AUTH] User '{username}' not found");
                     return false;
+                }
 
-                return storedHash == HashPassword(password);
+                string computedHash = HashPassword(password);
+                bool isValid = storedHash == computedHash;
+                
+                System.Diagnostics.Debug.WriteLine($"[AUTH] Username: {username}, Match: {isValid}");
+                
+                return isValid;
             }
         }
 
@@ -183,5 +190,15 @@ namespace FactureFne.Services
             }
         }
 
+        public User GetFirstUser()
+        {
+            using (var connection = new SQLiteConnection($"Data Source={_dbPath};Version=3;"))
+            {
+                connection.Open();
+
+                return connection.QueryFirstOrDefault<User>(
+                    "SELECT Id, Username FROM Users ORDER BY Id LIMIT 1;");
+            }
+        }
     }
 }

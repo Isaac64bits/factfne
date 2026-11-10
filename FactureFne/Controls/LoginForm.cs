@@ -14,8 +14,8 @@ namespace FactureFne
 {
     public partial class LoginForm : Form
     {
-        private readonly AuthRepository _authRepo;
         private readonly AppState _state;
+        private readonly AuthRepository _authRepo;
 
         public LoginForm(AppState state)
         {
@@ -24,15 +24,31 @@ namespace FactureFne
             this.MaximizeBox = false; // désactive le bouton agrandir
                                       //  chemin vers ta base SQLite
             _state = state;                  // <-- stocke l'état global
-            _authRepo = new AuthRepository("Users.db");
+            _authRepo = new AuthRepository();
 
             txtPassword.UseSystemPasswordChar = true;
+        }
+
+        private void LoginForm_Load(object sender, EventArgs e)
+        {
+            // Par défaut : mot de passe masqué
+            txtPassword.UseSystemPasswordChar = true;
+
+            // PictureBox setup (si pas déjà fait dans le designer)
+            picTogglePassword.SizeMode = PictureBoxSizeMode.StretchImage;
+            picTogglePassword.Cursor = Cursors.Hand;
+
+            // Charger l'icône (ressources ou fallback fichier)
+            picTogglePassword.Image = LoadResourceImage("eye_closed") ?? LoadImageFromFileFallback("eye_closed.png");
+
+            var user = _authRepo.GetFirstUser();
+            txtUsername.Text = user?.Username ?? string.Empty;
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
-            string password = txtPassword.Text.Trim();
+            string password = txtPassword.Text;
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
@@ -90,19 +106,6 @@ namespace FactureFne
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void LoginForm_Load(object sender, EventArgs e)
-        {
-            // Par défaut : mot de passe masqué
-            txtPassword.UseSystemPasswordChar = true;
-
-            // PictureBox setup (si pas déjà fait dans le designer)
-            picTogglePassword.SizeMode = PictureBoxSizeMode.StretchImage;
-            picTogglePassword.Cursor = Cursors.Hand;
-
-            // Charger l'icône (ressources ou fallback fichier)
-            picTogglePassword.Image = LoadResourceImage("eye_closed") ?? LoadImageFromFileFallback("eye_closed.png");
         }
 
         private void picTogglePassword_Click(object sender, EventArgs e)

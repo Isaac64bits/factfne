@@ -33,7 +33,7 @@ namespace FactureFne.Models
         public string ClientSellerName { get; set; } = "";  // NOM du Vendeur
         public string CodcliAirsi { get; set; } = "";     // Code client AIRSI
         public string TauxcliAirsi { get; set; } = "";     // Tauxclient AIRSI
-
+        public string RegimeFiscal { get; set; } = "";
 
         public bool IsEmpty()
         {
@@ -45,7 +45,8 @@ namespace FactureFne.Models
                 && string.IsNullOrWhiteSpace(ClientSellerName)
                 && string.IsNullOrWhiteSpace(CodcliAirsi)
                 && string.IsNullOrWhiteSpace(ForeignCurrency)
-                && ForeignCurrencyRate == 0;
+                && ForeignCurrencyRate == 0
+                && string.IsNullOrWhiteSpace(RegimeFiscal);
         }
 
     }

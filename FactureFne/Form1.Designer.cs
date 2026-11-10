@@ -30,8 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.mainMenu = new System.Windows.Forms.MenuStrip();
-            this.contentHost = new System.Windows.Forms.Panel();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.menuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entrepriseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,6 +39,8 @@
             this.SecuriteMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHistorique = new System.Windows.Forms.ToolStripMenuItem();
             this.menuNewFacture = new System.Windows.Forms.ToolStripMenuItem();
+            this.contentHost = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,26 +54,9 @@
             this.menuNewFacture});
             this.mainMenu.Location = new System.Drawing.Point(2, 2);
             this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(351, 35);
+            this.mainMenu.Size = new System.Drawing.Size(471, 35);
             this.mainMenu.TabIndex = 0;
             this.mainMenu.Text = "menuStrip1";
-            // 
-            // contentHost
-            // 
-            this.contentHost.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.contentHost.Location = new System.Drawing.Point(0, 39);
-            this.contentHost.Name = "contentHost";
-            this.contentHost.Size = new System.Drawing.Size(1290, 697);
-            this.contentHost.TabIndex = 1;
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.Green;
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1290, 39);
-            this.panel1.TabIndex = 2;
             // 
             // menuToolStripMenuItem
             // 
@@ -149,7 +132,6 @@
             this.SecuriteMenu.Name = "SecuriteMenu";
             this.SecuriteMenu.Size = new System.Drawing.Size(215, 46);
             this.SecuriteMenu.Text = "Sécurité";
-            this.SecuriteMenu.Visible = false;
             this.SecuriteMenu.Click += new System.EventHandler(this.SecuriteMenu_Click);
             // 
             // menuHistorique
@@ -175,6 +157,23 @@
             this.menuNewFacture.Size = new System.Drawing.Size(125, 31);
             this.menuNewFacture.Text = "Facturation";
             this.menuNewFacture.Click += new System.EventHandler(this.menuNewFacture_Click);
+            // 
+            // contentHost
+            // 
+            this.contentHost.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.contentHost.Location = new System.Drawing.Point(0, 39);
+            this.contentHost.Name = "contentHost";
+            this.contentHost.Size = new System.Drawing.Size(1290, 697);
+            this.contentHost.TabIndex = 1;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Green;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1290, 39);
+            this.panel1.TabIndex = 2;
             // 
             // Form1
             // 
